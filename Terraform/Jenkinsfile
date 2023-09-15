@@ -1,0 +1,31 @@
+pipeline {
+    agent {
+        docker {
+            image 'hashicorp/terraform:latest' // Use the latest Terraform image
+            reuseNode true // Reuse the same agent for the entire pipeline
+        }
+    }
+    
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/sumair-aslam09/pipelines.git' // Replace with your Git repository URL
+            }
+        }
+        
+        stage('Terraform Init and Apply') {
+            steps {
+                script {
+                    withAWS(credentials: 'your-aws-credentials-id', region: 'us-east-2') {
+                        // Change directory to your Terraform project directory
+                        dir('path/to/terraform/project') {
+                            sh 'terraform init'
+                            sh 'terraform plan'
+                            sh 'terraform apply -auto-approve'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

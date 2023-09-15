@@ -1,0 +1,28 @@
+pipeline {
+    agent {
+        docker {
+            image 'ansible/ansible:latest' // Use the Ansible Docker image
+            args '-v ${WORKSPACE}:/ansible' // Mount the Jenkins workspace as /ansible in the container
+        }
+    }
+    
+    stages {
+        stage('Clone Repository') {
+            steps {
+                sh 'git clone https://github.com/sumair-aslam09/pipelines.git' // Replace with your GitHub repository URL
+            }
+        }
+        
+        stage('Run Ansible') {
+            steps {
+                dir('your-repo') { // Enter the directory where the repository was cloned
+                    script {
+                        withAWS(credentials: 'template-aws', region: 'us-east-2') {
+                            sh 'ansible-playbook ansible.yml'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
